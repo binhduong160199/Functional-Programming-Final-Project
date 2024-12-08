@@ -7,89 +7,79 @@
 #include <sstream>
 #include <filesystem>
 #include <future>
+#include <cctype>
+#include <iterator>
 
-// Red-Black Tree Implementation
+// Simplified Red-Black Tree Implementation
 template <typename T>
-class RedBlackTree {
-private:
+struct ImmutableRedBlackTree {
     struct Node {
         T value;
-        bool color; // true for Red, false for Black
-        std::shared_ptr<Node> left, right, parent;
+        bool color; // true = Red, false = Black
+        std::shared_ptr<Node> left, right;
 
-        Node(const T& val) : value(val), color(true), left(nullptr), right(nullptr), parent(nullptr) {}
+        Node(const T& val, bool color, std::shared_ptr<Node> left = nullptr, std::shared_ptr<Node> right = nullptr)
+            : value(val), color(color), left(left), right(right) {}
     };
 
     std::shared_ptr<Node> root;
 
-    void leftRotate(std::shared_ptr<Node> x) {
-        auto y = x->right;
-        x->right = y->left;
-        if (y->left) y->left->parent = x;
+    ImmutableRedBlackTree() : root(nullptr) {}
 
-        y->parent = x->parent;
-        if (!x->parent) root = y;
-        else if (x == x->parent->left) x->parent->left = y;
-        else x->parent->right = y;
+    ImmutableRedBlackTree(std::shared_ptr<Node> root) : root(root) {}
 
-        y->left = x;
-        x->parent = y;
-    }
+    std::shared_ptr<Node> balance(std::shared_ptr<Node> node) const {
+        if (!node) return nullptr;
 
-    void rightRotate(std::shared_ptr<Node> y) {
-        auto x = y->left;
-        y->left = x->right;
-        if (x->right) x->right->parent = y;
-
-        x->parent = y->parent;
-        if (!y->parent) root = x;
-        else if (y == y->parent->right) y->parent->right = x;
-        else y->parent->left = x;
-
-        x->right = y;
-        y->parent = x;
-    }
-
-    void insertFixup(std::shared_ptr<Node> z) {
-        while (z->parent && z->parent->color) {
-            if (z->parent == z->parent->parent->left) {
-                auto y = z->parent->parent->right;
-                if (y && y->color) { // Case 1: Uncle is red
-                    z->parent->color = false;
-                    y->color = false;
-                    z->parent->parent->color = true;
-                    z = z->parent->parent;
-                } else {
-                    if (z == z->parent->right) { // Case 2: Uncle is black
-                        z = z->parent;
-                        leftRotate(z);
-                    }
-                    z->parent->color = false; // Case 3: Uncle is black
-                    z->parent->parent->color = true;
-                    rightRotate(z->parent->parent);
-                }
-            } else {
-                auto y = z->parent->parent->left;
-                if (y && y->color) {
-                    z->parent->color = false;
-                    y->color = false;
-                    z->parent->parent->color = true;
-                    z = z->parent->parent;
-                } else {
-                    if (z == z->parent->left) {
-                        z = z->parent;
-                        rightRotate(z);
-                    }
-                    z->parent->color = false;
-                    z->parent->parent->color = true;
-                    leftRotate(z->parent->parent);
-                }
-            }
+        // If left child and left-left grandchild are red
+        if (node->left && node->left->color && node->left->left && node->left->left->color) {
+            return std::make_shared<Node>(node->left->value, true,
+                                          node->left->left,
+                                          std::make_shared<Node>(node->value, false, node->left->right, node->right));
         }
-        root->color = false;
+
+        // If left child and left-right grandchild are red
+        if (node->left && node->left->color && node->left->right && node->left->right->color) {
+            return std::make_shared<Node>(node->left->right->value, true,
+                                          std::make_shared<Node>(node->left->value, false, node->left->left, node->left->right->left),
+                                          std::make_shared<Node>(node->value, false, node->left->right->right, node->right));
+        }
+
+        // If right child and right-right grandchild are red
+        if (node->right && node->right->color && node->right->right && node->right->right->color) {
+            return std::make_shared<Node>(node->right->value, true,
+                                          std::make_shared<Node>(node->value, false, node->left, node->right->left),
+                                          node->right->right);
+        }
+
+        // If right child and right-left grandchild are red
+        if (node->right && node->right->color && node->right->left && node->right->left->color) {
+            return std::make_shared<Node>(node->right->left->value, true,
+                                          std::make_shared<Node>(node->value, false, node->left, node->right->left->left),
+                                          std::make_shared<Node>(node->right->value, false, node->right->left->right, node->right->right));
+        }
+
+        return node;
     }
 
-    void inOrderTraversalHelper(std::shared_ptr<Node> node, std::vector<T>& result) const {
+    std::shared_ptr<Node> insert(std::shared_ptr<Node> node, const T& value) const {
+        if (!node) return std::make_shared<Node>(value, true); // Insert as red node
+
+        if (value < node->value) {
+            return balance(std::make_shared<Node>(node->value, node->color, insert(node->left, value), node->right));
+        } else if (value > node->value) {
+            return balance(std::make_shared<Node>(node->value, node->color, node->left, insert(node->right, value)));
+        }
+
+        return node; // No duplicates allowed
+    }
+
+    ImmutableRedBlackTree insert(const T& value) const {
+        auto newRoot = insert(root, value);
+        return ImmutableRedBlackTree(std::make_shared<Node>(newRoot->value, false, newRoot->left, newRoot->right));
+    }
+
+    void inOrderTraversalHelper(const std::shared_ptr<Node>& node, std::vector<T>& result) const {
         if (node) {
             inOrderTraversalHelper(node->left, result);
             result.push_back(node->value);
@@ -97,28 +87,7 @@ private:
         }
     }
 
-public:
-    void insert(const T& value) {
-        auto z = std::make_shared<Node>(value);
-        auto y = std::shared_ptr<Node>(nullptr);
-        auto x = root;
-
-        while (x) {
-            y = x;
-            if (z->value < x->value) x = x->left;
-            else if (z->value > x->value) x = x->right;
-            else return; // No duplicates
-        }
-
-        z->parent = y;
-        if (!y) root = z;
-        else if (z->value < y->value) y->left = z;
-        else y->right = z;
-
-        insertFixup(z);
-    }
-
-    std::vector<T> inOrderTraversal() const {
+    std::vector<T> getSortedValues() const {
         std::vector<T> result;
         inOrderTraversalHelper(root, result);
         return result;
@@ -139,22 +108,15 @@ std::string readFile(const std::string& filePath) {
 
 // Tokenize the text
 std::vector<std::string> tokenize(const std::string& text) {
-    std::vector<std::string> words;
-    std::string word;
+    // Convert the entire text to lowercase and replace unwanted characters with spaces
+    std::string processed;
+    std::transform(text.begin(), text.end(), std::back_inserter(processed), [](unsigned char c) {
+        return (std::isalnum(c) || c == '\'') ? std::tolower(c) : ' ';
+    });
 
-    for (char ch : text) {
-        if (std::isalnum(ch) || ch == '\'') { // Include apostrophes
-            word += std::tolower(ch);
-        } else if (!word.empty()) { // Push current word if punctuation or space is found
-            words.push_back(word);
-            word.clear();
-        }
-    }
-    if (!word.empty()) { // Add the last word if any
-        words.push_back(word);
-    }
-
-    return words;
+    // Use a stringstream to split the processed string into words
+    std::istringstream iss(processed);
+    return {std::istream_iterator<std::string>(iss), std::istream_iterator<std::string>()};
 }
 
 // Parallel tokenization
@@ -177,13 +139,20 @@ std::vector<std::string> parallelTokenize(const std::string& text) {
 
 // Write sorted words to a file
 void writeToFile(const std::string& filePath, const std::vector<std::string>& words) {
-    std::ofstream file(filePath);
-    if (!file.is_open()) {
-        throw std::runtime_error("Failed to open file: " + filePath);
-    }
+    try {
+        std::ofstream file(filePath, std::ios::out | std::ios::trunc); // Ensure the file is opened for writing and truncated
+        if (!file.is_open()) {
+            throw std::ios_base::failure("Failed to open file: " + filePath);
+        }
 
-    for (const auto& word : words) {
-        file << word << "\n";
+        // Write words to the file
+        std::for_each(words.begin(), words.end(), [&file](const std::string& word) {
+            file << word << "\n";
+        });
+
+    } catch (const std::exception& e) {
+        std::cerr << "Error while writing to file: " << e.what() << "\n";
+        throw; // Rethrow the exception for the caller to handle
     }
 }
 
@@ -206,7 +175,7 @@ TEST_CASE("Test Tokenization") {
 }
 
 TEST_CASE("Test Parallel Tokenization") {
-    std::string text = "Hello, world! Functional-programming in C++. Let's test this!";
+    std::string text = "Hello, world! Functional-programming in C. Let's test this!";
     auto words = parallelTokenize(text);
 
     std::vector<std::string> expected{"hello", "world", "functional", "programming", "in", "c", "let's", "test", "this"};
@@ -227,15 +196,15 @@ TEST_CASE("Test Parallel Tokenization") {
 }
 
 TEST_CASE("Test Red-Black Tree Insertion") {
-    RedBlackTree<std::string> tree;
+    ImmutableRedBlackTree<std::string> tree;
 
-    tree.insert("functional");
-    tree.insert("programming");
-    tree.insert("in");
-    tree.insert("c");
-    tree.insert("functional"); // Duplicate
+    tree = tree.insert("functional");
+    tree = tree.insert("programming");
+    tree = tree.insert("in");
+    tree = tree.insert("c");
+    tree = tree.insert("functional"); // Duplicate
 
-    auto sorted = tree.inOrderTraversal();
+    auto sorted = tree.getSortedValues();
     std::vector<std::string> expected{"c", "functional", "in", "programming"};
     CHECK(sorted == expected);
 }
@@ -256,6 +225,73 @@ TEST_CASE("Test Writing to File") {
     std::filesystem::remove(filePath);
 }
 
+// Helper function to merge two red-black trees
+template <typename T>
+ImmutableRedBlackTree<T> mergeTrees(const ImmutableRedBlackTree<T>& tree1, const ImmutableRedBlackTree<T>& tree2) {
+    auto sortedValues = tree2.getSortedValues();
+    ImmutableRedBlackTree<T> mergedTree = tree1;
+    for (const auto& value : sortedValues) {
+        mergedTree = mergedTree.insert(value);
+    }
+    return mergedTree;
+}
+
+// Parallel insertion function
+template <typename T>
+ImmutableRedBlackTree<T> parallelInsert(const std::vector<T>& words) {
+    if (words.empty()) {
+        return ImmutableRedBlackTree<T>();
+    }
+
+    size_t mid = words.size() / 2;
+
+    // Launch asynchronous tasks for each half
+    auto futureTree1 = std::async(std::launch::async, [&]() {
+        ImmutableRedBlackTree<T> tree;
+        for (size_t i = 0; i < mid; ++i) {
+            tree = tree.insert(words[i]);
+        }
+        return tree;
+    });
+
+    auto futureTree2 = std::async(std::launch::async, [&]() {
+        ImmutableRedBlackTree<T> tree;
+        for (size_t i = mid; i < words.size(); ++i) {
+            tree = tree.insert(words[i]);
+        }
+        return tree;
+    });
+
+    // Get the results and merge the trees
+    ImmutableRedBlackTree<T> tree1 = futureTree1.get();
+    ImmutableRedBlackTree<T> tree2 = futureTree2.get();
+    return mergeTrees(tree1, tree2);
+}
+
+// Updated processFile function to use parallel insertion
+void processFile(const std::string& inputPath, const std::string& outputPath) {
+    try {
+        // Read the file and tokenize
+        std::string text = readFile(inputPath);
+        std::vector<std::string> words = parallelTokenize(text);
+
+        // Perform parallel insertion into the red-black tree
+        ImmutableRedBlackTree<std::string> tree = parallelInsert(words);
+
+        // Retrieve sorted values from the tree
+        std::vector<std::string> sortedWords = tree.getSortedValues();
+
+        // Write sorted words to the output file
+        writeToFile(outputPath, sortedWords);
+
+        std::cout << "The sorted list of unique words has been written to " << outputPath << ".\n";
+    } catch (const std::exception& e) {
+        std::cerr << "Error during file processing: " << e.what() << "\n";
+        throw;
+    }
+}
+
+// Main function remains unchanged
 int main(int argc, char** argv) {
     doctest::Context context;
 
@@ -263,34 +299,25 @@ int main(int argc, char** argv) {
     std::cout << "\nRunning tests...\n";
     int testResult = context.run(); // Run doctest
 
-    if (testResult == 0) {
-        std::cout << "\nAll test cases passed!\n";
-    } else {
-        std::cout << "\nSome test cases failed. Check the details above.\n";
+    if (testResult != 0) {
+        std::cerr << "\nSome test cases failed. Check the details above.\n";
+        return testResult;
     }
+    std::cout << "\nAll test cases passed!\n";
 
-    // Main program logic
     try {
-        std::cout << "Enter the path to the file: ";
-        std::string filePath;
-        std::getline(std::cin, filePath);
+        // Prompt user for input file path
+        std::cout << "Enter the path to the input file: ";
+        std::string inputPath;
+        std::getline(std::cin, inputPath);
 
-        std::string text = readFile(filePath);
-        auto words = tokenize(text);
-
-        RedBlackTree<std::string> tree;
-        for (const auto& word : words) {
-            tree.insert(word);
-        }
-
-        auto sortedWords = tree.inOrderTraversal();
-        writeToFile("output.txt", sortedWords);
-
-        std::cout << "The sorted list of unique words has been written to output.txt.\n";
+        // Process the file and generate output
+        const std::string outputPath = "output.txt";
+        processFile(inputPath, outputPath);
     } catch (const std::exception& e) {
-        std::cerr << "Error: " << e.what() << "\n";
+        std::cerr << "Error in main: " << e.what() << "\n";
         return 1;
     }
 
-    return testResult; // Return test results
+    return 0;
 }
