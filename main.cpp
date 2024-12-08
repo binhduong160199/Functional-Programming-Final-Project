@@ -106,6 +106,13 @@ std::string readFile(const std::string& filePath) {
     return content.str();
 }
 
+// Trim leading and trailing apostrophes from a word
+std::string trimApostrophes(const std::string& word) {
+    size_t start = word.find_first_not_of("'");
+    size_t end = word.find_last_not_of("'");
+    return (start == std::string::npos) ? "" : word.substr(start, end - start + 1);
+}
+
 // Tokenize the text
 std::vector<std::string> tokenize(const std::string& text) {
     // Convert the entire text to lowercase and replace unwanted characters with spaces
@@ -116,7 +123,18 @@ std::vector<std::string> tokenize(const std::string& text) {
 
     // Use a stringstream to split the processed string into words
     std::istringstream iss(processed);
-    return {std::istream_iterator<std::string>(iss), std::istream_iterator<std::string>()};
+    std::vector<std::string> tokens = {std::istream_iterator<std::string>(iss), std::istream_iterator<std::string>()};
+
+    // Clean up leading and trailing apostrophes
+    std::vector<std::string> cleanedTokens;
+    for (const auto& token : tokens) {
+        std::string cleaned = trimApostrophes(token);
+        if (!cleaned.empty()) {
+            cleanedTokens.push_back(cleaned);
+        }
+    }
+
+    return cleanedTokens;
 }
 
 // Parallel tokenization
