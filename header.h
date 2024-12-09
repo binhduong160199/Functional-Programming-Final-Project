@@ -43,40 +43,67 @@ struct ImmutableRedBlackTree {
     }
 
 private:
+    // Helper to determine if a node is red
+    bool isRed(const std::shared_ptr<Node>& node) const {
+        return node && node->color; // A node is red if it exists and its color is true
+    }
+
+    // Helper to create a new node with updated children
+    std::shared_ptr<Node> createNode(const T& value, bool color,
+                                     const std::shared_ptr<Node>& left,
+                                     const std::shared_ptr<Node>& right) const {
+        return std::make_shared<Node>(value, color, left, right);
+    }
+
+    // Balancing logic for the tree
     std::shared_ptr<Node> balance(std::shared_ptr<Node> node) const {
         if (!node) return nullptr;
 
-        if (node->left && node->left->color && node->left->left && node->left->left->color) {
-            return std::make_shared<Node>(node->left->value, true, node->left->left,
-                                          std::make_shared<Node>(node->value, false, node->left->right, node->right));
-        }
-        if (node->left && node->left->color && node->left->right && node->left->right->color) {
-            return std::make_shared<Node>(node->left->right->value, true,
-                                          std::make_shared<Node>(node->left->value, false, node->left->left, node->left->right->left),
-                                          std::make_shared<Node>(node->value, false, node->left->right->right, node->right));
-        }
-        if (node->right && node->right->color && node->right->right && node->right->right->color) {
-            return std::make_shared<Node>(node->right->value, true,
-                                          std::make_shared<Node>(node->value, false, node->left, node->right->left),
-                                          node->right->right);
-        }
-        if (node->right && node->right->color && node->right->left && node->right->left->color) {
-            return std::make_shared<Node>(node->right->left->value, true,
-                                          std::make_shared<Node>(node->value, false, node->left, node->right->left->left),
-                                          std::make_shared<Node>(node->right->value, false, node->right->left->right, node->right->right));
+        // Case 1: Left-left grandchild is red
+        if (isRed(node->left) && isRed(node->left->left)) {
+            return createNode(node->left->value, true,
+                              node->left->left,
+                              createNode(node->value, false, node->left->right, node->right));
         }
 
+        // Case 2: Left-right grandchild is red
+        if (isRed(node->left) && isRed(node->left->right)) {
+            return createNode(node->left->right->value, true,
+                              createNode(node->left->value, false, node->left->left, node->left->right->left),
+                              createNode(node->value, false, node->left->right->right, node->right));
+        }
+
+        // Case 3: Right-right grandchild is red
+        if (isRed(node->right) && isRed(node->right->right)) {
+            return createNode(node->right->value, true,
+                              createNode(node->value, false, node->left, node->right->left),
+                              node->right->right);
+        }
+
+        // Case 4: Right-left grandchild is red
+        if (isRed(node->right) && isRed(node->right->left)) {
+            return createNode(node->right->left->value, true,
+                              createNode(node->value, false, node->left, node->right->left->left),
+                              createNode(node->right->value, false, node->right->left->right, node->right->right));
+        }
+
+        // If no balancing needed, return the original node
         return node;
     }
 
+    // Inserting logic for the tree
     std::shared_ptr<Node> insert(std::shared_ptr<Node> node, const T& value) const {
-        if (!node) return std::make_shared<Node>(value, true); // Insert as red node
+        if (!node) return createNode(value, true, nullptr, nullptr); // Insert as red node
+
+        // Compare value and recurse to the left or right subtree
         if (value < node->value) {
-            return balance(std::make_shared<Node>(node->value, node->color, insert(node->left, value), node->right));
+            return balance(createNode(node->value, node->color, insert(node->left, value), node->right));
         } else if (value > node->value) {
-            return balance(std::make_shared<Node>(node->value, node->color, node->left, insert(node->right, value)));
+            return balance(createNode(node->value, node->color, node->left, insert(node->right, value)));
         }
-        return node; // No duplicates allowed
+
+        // Return node if value already exists (no duplicates allowed)
+        return node;
     }
 };
 
