@@ -87,7 +87,7 @@ std::vector<std::string> tokenize(const std::string& text);
 std::vector<std::string> parallelTokenize(const std::string& text);
 void writeToFile(const std::string& filePath, const std::vector<std::string>& words);
 
-// Helper function to merge two red-black trees
+// Helper function to merge two red-black trees (bonus point)
 template <typename T>
 ImmutableRedBlackTree<T> mergeTrees(const ImmutableRedBlackTree<T>& tree1, const ImmutableRedBlackTree<T>& tree2) {
     auto sortedValues = tree2.getSortedValues();
