@@ -9,6 +9,7 @@
 #include <future>
 #include <cctype>
 #include <iterator>
+#include <numeric>
 
 // Simplified Red-Black Tree Implementation
 template <typename T>
@@ -88,8 +89,20 @@ struct ImmutableRedBlackTree {
     }
 
     std::vector<T> getSortedValues() const {
+        if (!root) return {};
+
         std::vector<T> result;
-        inOrderTraversalHelper(root, result);
+
+        // Define a helper function for in-order traversal
+        std::function<void(const std::shared_ptr<Node>&)> traverse =
+            [&](const std::shared_ptr<Node>& node) {
+                if (!node) return;
+                traverse(node->left);
+                result.push_back(node->value);
+                traverse(node->right);
+        };
+
+        traverse(root);
         return result;
     }
 };
@@ -115,58 +128,79 @@ std::string trimApostrophes(const std::string& word) {
 
 // Tokenize the text
 std::vector<std::string> tokenize(const std::string& text) {
-    // Convert the entire text to lowercase and replace unwanted characters with spaces
-    std::string processed;
-    std::transform(text.begin(), text.end(), std::back_inserter(processed), [](unsigned char c) {
-        return (std::isalnum(c) || c == '\'') ? std::tolower(c) : ' ';
-    });
+    // Step 1: Convert the text to lowercase and replace unwanted characters
+    auto preprocess = [](const std::string& input) {
+        return std::accumulate(input.begin(), input.end(), std::string(), [](std::string acc, unsigned char c) {
+            acc.push_back((std::isalnum(c) || c == '\'') ? std::tolower(c) : ' ');
+            return acc;
+        });
+    };
 
-    // Use a stringstream to split the processed string into words
-    std::istringstream iss(processed);
-    std::vector<std::string> tokens = {std::istream_iterator<std::string>(iss), std::istream_iterator<std::string>()};
+    // Step 2: Split the processed text into words
+    auto splitIntoWords = [](const std::string& processed) {
+        std::istringstream iss(processed);
+        return std::vector<std::string>{std::istream_iterator<std::string>(iss), std::istream_iterator<std::string>()};
+    };
 
-    // Clean up leading and trailing apostrophes
-    std::vector<std::string> cleanedTokens;
-    for (const auto& token : tokens) {
-        std::string cleaned = trimApostrophes(token);
-        if (!cleaned.empty()) {
-            cleanedTokens.push_back(cleaned);
-        }
-    }
+    // Step 3: Clean up leading and trailing apostrophes
+    auto cleanTokens = [](const std::vector<std::string>& tokens) {
+        return std::accumulate(tokens.begin(), tokens.end(), std::vector<std::string>(), [](std::vector<std::string> acc, const std::string& token) {
+            std::string cleaned = trimApostrophes(token);
+            if (!cleaned.empty()) acc.push_back(cleaned);
+            return acc;
+        });
+    };
 
-    return cleanedTokens;
+    // Compose the steps
+    return cleanTokens(splitIntoWords(preprocess(text)));
 }
 
 // Parallel tokenization
 std::vector<std::string> parallelTokenize(const std::string& text) {
-    size_t mid = text.size() / 2;
+    // Helper function to adjust the midpoint
+    auto adjustMid = [](size_t mid, const std::string& txt) {
+        while (mid > 0 && std::isalnum(txt[mid])) --mid;
+        return mid;
+    };
 
-    // Move `mid` to the next space or punctuation
-    while (mid > 0 && std::isalnum(text[mid])) {
-        --mid;
-    }
+    size_t mid = adjustMid(text.size() / 2, text);
 
+    // Launch parallel tasks for tokenizing the text
     auto future1 = std::async(std::launch::async, tokenize, text.substr(0, mid));
     auto future2 = std::async(std::launch::async, tokenize, text.substr(mid));
 
     auto words1 = future1.get();
     auto words2 = future2.get();
-    words1.insert(words1.end(), words2.begin(), words2.end());
-    return words1;
+
+    // Use std::accumulate to combine the vectors without requiring mutable references
+    return std::accumulate(
+        words2.begin(), words2.end(), std::move(words1),
+        [](std::vector<std::string> acc, const std::string& word) {
+            acc.push_back(word);
+            return acc;
+        }
+    );
 }
 
 // Write sorted words to a file
 void writeToFile(const std::string& filePath, const std::vector<std::string>& words) {
     try {
-        std::ofstream file(filePath, std::ios::out | std::ios::trunc); // Ensure the file is opened for writing and truncated
+        // Open the file for writing
+        std::ofstream file(filePath, std::ios::out | std::ios::trunc);
         if (!file.is_open()) {
             throw std::ios_base::failure("Failed to open file: " + filePath);
         }
 
-        // Write words to the file
-        std::for_each(words.begin(), words.end(), [&file](const std::string& word) {
-            file << word << "\n";
-        });
+        // Combine all words into a single string, separating them with newlines, and add a trailing newline
+        const std::string content = std::accumulate(
+            words.begin(), words.end(), std::string(),
+            [](const std::string& acc, const std::string& word) {
+                return acc + (acc.empty() ? "" : "\n") + word;
+            }
+        ) + "\n"; // Add a final newline for consistency
+
+        // Write the combined string to the file
+        file << content;
 
     } catch (const std::exception& e) {
         std::cerr << "Error while writing to file: " << e.what() << "\n";
@@ -193,24 +227,34 @@ TEST_CASE("Test Tokenization") {
 }
 
 TEST_CASE("Test Parallel Tokenization") {
+    // Define the input text for testing
     std::string text = "Hello, world! Functional-programming in C. Let's test this!";
+
+    // Call the function to tokenize the input text in parallel
     auto words = parallelTokenize(text);
 
+    // Define the expected output after tokenization
     std::vector<std::string> expected{"hello", "world", "functional", "programming", "in", "c", "let's", "test", "this"};
 
-    if (words != expected) {
-        std::cerr << "\nParallel Tokenization Failed!\n";
-        std::cerr << "Expected (" << expected.size() << "): ";
-        for (const auto& w : expected) {
-            std::cerr << "\"" << w << "\" ";
-        }
-        std::cerr << "\nActual (" << words.size() << "): ";
-        for (const auto& w : words) {
-            std::cerr << "\"" << w << "\" ";
-        }
-        std::cerr << "\n";
+    // Compare the result using functional programming style
+    bool match = std::equal(words.begin(), words.end(), expected.begin());
+
+    // If the result doesn't match, print debugging information
+    if (!match) {
+        std::cerr << "\nParallel Tokenization Failed!\n"
+                  << "Expected: " << std::accumulate(expected.begin(), expected.end(), std::string(),
+                                                    [](const std::string& acc, const std::string& word) {
+                                                        return acc + (acc.empty() ? "" : " ") + word;
+                                                    })
+                  << "\nActual:   " << std::accumulate(words.begin(), words.end(), std::string(),
+                                                       [](const std::string& acc, const std::string& word) {
+                                                           return acc + (acc.empty() ? "" : " ") + word;
+                                                       })
+                  << "\n";
     }
-    REQUIRE(words == expected);
+
+    // Use a functional approach for the assertion
+    REQUIRE(match);
 }
 
 TEST_CASE("Test Red-Black Tree Insertion") {
@@ -247,11 +291,14 @@ TEST_CASE("Test Writing to File") {
 template <typename T>
 ImmutableRedBlackTree<T> mergeTrees(const ImmutableRedBlackTree<T>& tree1, const ImmutableRedBlackTree<T>& tree2) {
     auto sortedValues = tree2.getSortedValues();
-    ImmutableRedBlackTree<T> mergedTree = tree1;
-    for (const auto& value : sortedValues) {
-        mergedTree = mergedTree.insert(value);
-    }
-    return mergedTree;
+
+    // Use std::accumulate to merge the values from tree2 into tree1
+    return std::accumulate(
+        sortedValues.begin(), sortedValues.end(), tree1,
+        [](const ImmutableRedBlackTree<T>& accumulatedTree, const T& value) {
+            return accumulatedTree.insert(value);
+        }
+    );
 }
 
 // Parallel insertion function
@@ -265,25 +312,27 @@ ImmutableRedBlackTree<T> parallelInsert(const std::vector<T>& words) {
 
     // Launch asynchronous tasks for each half
     auto futureTree1 = std::async(std::launch::async, [&]() {
-        ImmutableRedBlackTree<T> tree;
-        for (size_t i = 0; i < mid; ++i) {
-            tree = tree.insert(words[i]);
-        }
-        return tree;
+        // Insert the first half of the words using std::accumulate
+        return std::accumulate(
+            words.begin(), words.begin() + mid, ImmutableRedBlackTree<T>(),
+            [](const ImmutableRedBlackTree<T>& tree, const T& word) {
+                return tree.insert(word);
+            }
+        );
     });
 
     auto futureTree2 = std::async(std::launch::async, [&]() {
-        ImmutableRedBlackTree<T> tree;
-        for (size_t i = mid; i < words.size(); ++i) {
-            tree = tree.insert(words[i]);
-        }
-        return tree;
+        // Insert the second half of the words using std::accumulate
+        return std::accumulate(
+            words.begin() + mid, words.end(), ImmutableRedBlackTree<T>(),
+            [](const ImmutableRedBlackTree<T>& tree, const T& word) {
+                return tree.insert(word);
+            }
+        );
     });
 
-    // Get the results and merge the trees
-    ImmutableRedBlackTree<T> tree1 = futureTree1.get();
-    ImmutableRedBlackTree<T> tree2 = futureTree2.get();
-    return mergeTrees(tree1, tree2);
+    // Merge the results from the two futures
+    return mergeTrees(futureTree1.get(), futureTree2.get());
 }
 
 // Updated processFile function to use parallel insertion
