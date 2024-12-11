@@ -28,6 +28,7 @@ struct ImmutableRedBlackTree {
         return ImmutableRedBlackTree(std::make_shared<Node>(newRoot->value, false, newRoot->left, newRoot->right));
     }
 
+    //Traverse the red-black tree in order and collect the words in a sorted list.
     std::vector<T> getSortedValues() const {
         if (!root) return {};
         std::vector<T> result;
@@ -160,6 +161,21 @@ ImmutableRedBlackTree<T> parallelInsert(const std::vector<T>& words) {
     // Merge the results from the two futures
     return mergeTrees(futureTree1.get(), futureTree2.get());
 }
+
+// Utility to measure time
+class Timer {
+public:
+    Timer() { start_time = std::chrono::high_resolution_clock::now(); }
+
+    void stop(const std::string& processName) {
+        auto end_time = std::chrono::high_resolution_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
+        std::cout << processName << " took " << duration << "ms.\n";
+    }
+
+private:
+    std::chrono::high_resolution_clock::time_point start_time;
+};
 
 void processFile(const std::string& inputPath, const std::string& outputPath);
 

@@ -187,52 +187,73 @@ TEST_CASE("Test Writing to File") {
     std::filesystem::remove(filePath);
 }
 
-// Updated processFile function to use parallel insertion
-void processFile(const std::string& inputPath, const std::string& outputPath) {
+//processFile function to use parallel insertion with timing
+void processFileWithTiming(const std::string& inputPath, const std::string& outputPath, bool useParallel = false) {
     try {
-        // Read the file and tokenize
+        std::cout << "Processing file: " << inputPath << "\n";
+
+        // Step 1: Read the file
+        Timer fileReadTimer;
         std::string text = readFile(inputPath);
-        std::vector<std::string> words = parallelTokenize(text);
+        fileReadTimer.stop("File reading");
 
-        // Perform parallel insertion into the red-black tree
-        ImmutableRedBlackTree<std::string> tree = parallelInsert(words);
+        // Step 2: Tokenize the text
+        Timer tokenizeTimer;
+        std::vector<std::string> words = useParallel ? parallelTokenize(text) : tokenize(text);
+        tokenizeTimer.stop("Tokenizing");
 
-        // Retrieve sorted values from the tree
+        // Step 3: Insert into Red-Black Tree
+        Timer treeConstructionTimer;
+        ImmutableRedBlackTree<std::string> tree = useParallel ? parallelInsert(words) : std::accumulate(
+            words.begin(), words.end(), ImmutableRedBlackTree<std::string>(),
+            [](const ImmutableRedBlackTree<std::string>& tree, const std::string& word) { return tree.insert(word); });
+        treeConstructionTimer.stop("Tree construction");
+
+        // Step 4: Retrieve sorted words
+        Timer traversalTimer;
         std::vector<std::string> sortedWords = tree.getSortedValues();
+        traversalTimer.stop("Tree traversal");
 
-        // Write sorted words to the output file
+        // Step 5: Write to output file
+        Timer fileWriteTimer;
         writeToFile(outputPath, sortedWords);
+        fileWriteTimer.stop("File writing");
 
-        std::cout << "The sorted list of unique words has been written to " << outputPath << ".\n";
+        std::cout << "Processing completed. Results written to " << outputPath << ".\n";
     } catch (const std::exception& e) {
         std::cerr << "Error during file processing: " << e.what() << "\n";
-        throw;
     }
 }
 
-// Main function remains unchanged
 int main(int argc, char** argv) {
+    // Run tests
     doctest::Context context;
 
-    // Run tests
     std::cout << "\nRunning tests...\n";
     int testResult = context.run(); // Run doctest
-
     if (testResult != 0) {
         std::cerr << "\nSome test cases failed. Check the details above.\n";
         return testResult;
     }
     std::cout << "\nAll test cases passed!\n";
 
+    // Performance comparison
     try {
         // Prompt user for input file path
-        std::cout << "Enter the path to the input file: ";
+        std::cout << "\nEnter the path to the input file: ";
         std::string inputPath;
         std::getline(std::cin, inputPath);
 
-        // Process the file and generate output
         const std::string outputPath = "output.txt";
-        processFile(inputPath, outputPath);
+
+        // Sequential processing
+        std::cout << "\n=== Sequential Processing ===\n";
+        processFileWithTiming(inputPath, outputPath, false);
+
+        // Parallel processing
+        std::cout << "\n=== Parallel Processing ===\n";
+        processFileWithTiming(inputPath, outputPath, true);
+
     } catch (const std::exception& e) {
         std::cerr << "Error in main: " << e.what() << "\n";
         return 1;
