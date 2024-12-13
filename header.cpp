@@ -4,6 +4,7 @@
 #include <filesystem>
 #include <iterator>
 #include <stdexcept>
+#include <iostream>
 
 // Timer class implementation
 Timer::Timer() {
@@ -21,19 +22,22 @@ std::string readFile(const std::string& filePath) {
     if (!std::filesystem::exists(filePath)) {
         throw std::runtime_error("File does not exist: " + filePath);
     }
+    try {
+        std::ifstream file(filePath, std::ios::binary | std::ios::ate);
+        if (!file.is_open()) {
+            throw std::ios_base::failure("Failed to open file: " + filePath);
+        }
 
-    std::ifstream file(filePath, std::ios::binary | std::ios::ate);
-    if (!file.is_open()) {
-        throw std::ios_base::failure("Failed to open file: " + filePath);
+        auto fileSize = file.tellg();
+        file.seekg(0, std::ios::beg);
+
+        std::string content(static_cast<size_t>(fileSize), '\0');
+        file.read(content.data(), fileSize);
+
+        return content;
+    } catch (const std::exception& e) {
+        throw std::runtime_error("Failed to read file: " + std::string(e.what()));
     }
-
-    auto fileSize = file.tellg();
-    file.seekg(0, std::ios::beg);
-
-    std::string content(static_cast<size_t>(fileSize), '\0');
-    file.read(content.data(), fileSize);
-
-    return content;
 }
 
 // Trim leading and trailing apostrophes

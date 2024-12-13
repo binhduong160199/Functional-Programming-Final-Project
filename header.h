@@ -25,7 +25,7 @@ private:
     std::chrono::high_resolution_clock::time_point start_time;
 };
 
-// Template function declarations and implementations
+// parallel insert and merge
 template <typename T>
 RBTree<T> parallelInsert(const std::vector<T>& words) {
     if (words.empty()) {
