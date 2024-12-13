@@ -10,4 +10,4 @@ set(CMAKE_TOOLCHAIN_FILE "${CMAKE_CURRENT_SOURCE_DIR}/vcpkg/scripts/buildsystems
 include_directories(${PROJECT_SOURCE_DIR})
 
 # Add the executable
-add_executable(final main.cpp)
+add_executable(final main.cpp test.cpp header.cpp)

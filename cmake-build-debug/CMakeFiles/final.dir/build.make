@@ -83,17 +83,49 @@ CMakeFiles/final.dir/main.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/final.dir/main.cpp.s"
 	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "/Users/binhduongnguyen/Downloads/FH Technikum/Semester 5/Funktionale Programmierung Labor/Functional-Programming-Final-Project/main.cpp" -o CMakeFiles/final.dir/main.cpp.s
 
+CMakeFiles/final.dir/test.cpp.o: CMakeFiles/final.dir/flags.make
+CMakeFiles/final.dir/test.cpp.o: /Users/binhduongnguyen/Downloads/FH\ Technikum/Semester\ 5/Funktionale\ Programmierung\ Labor/Functional-Programming-Final-Project/test.cpp
+CMakeFiles/final.dir/test.cpp.o: CMakeFiles/final.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="/Users/binhduongnguyen/Downloads/FH Technikum/Semester 5/Funktionale Programmierung Labor/Functional-Programming-Final-Project/cmake-build-debug/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/final.dir/test.cpp.o"
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/final.dir/test.cpp.o -MF CMakeFiles/final.dir/test.cpp.o.d -o CMakeFiles/final.dir/test.cpp.o -c "/Users/binhduongnguyen/Downloads/FH Technikum/Semester 5/Funktionale Programmierung Labor/Functional-Programming-Final-Project/test.cpp"
+
+CMakeFiles/final.dir/test.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/final.dir/test.cpp.i"
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "/Users/binhduongnguyen/Downloads/FH Technikum/Semester 5/Funktionale Programmierung Labor/Functional-Programming-Final-Project/test.cpp" > CMakeFiles/final.dir/test.cpp.i
+
+CMakeFiles/final.dir/test.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/final.dir/test.cpp.s"
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "/Users/binhduongnguyen/Downloads/FH Technikum/Semester 5/Funktionale Programmierung Labor/Functional-Programming-Final-Project/test.cpp" -o CMakeFiles/final.dir/test.cpp.s
+
+CMakeFiles/final.dir/header.cpp.o: CMakeFiles/final.dir/flags.make
+CMakeFiles/final.dir/header.cpp.o: /Users/binhduongnguyen/Downloads/FH\ Technikum/Semester\ 5/Funktionale\ Programmierung\ Labor/Functional-Programming-Final-Project/header.cpp
+CMakeFiles/final.dir/header.cpp.o: CMakeFiles/final.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="/Users/binhduongnguyen/Downloads/FH Technikum/Semester 5/Funktionale Programmierung Labor/Functional-Programming-Final-Project/cmake-build-debug/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/final.dir/header.cpp.o"
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/final.dir/header.cpp.o -MF CMakeFiles/final.dir/header.cpp.o.d -o CMakeFiles/final.dir/header.cpp.o -c "/Users/binhduongnguyen/Downloads/FH Technikum/Semester 5/Funktionale Programmierung Labor/Functional-Programming-Final-Project/header.cpp"
+
+CMakeFiles/final.dir/header.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/final.dir/header.cpp.i"
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "/Users/binhduongnguyen/Downloads/FH Technikum/Semester 5/Funktionale Programmierung Labor/Functional-Programming-Final-Project/header.cpp" > CMakeFiles/final.dir/header.cpp.i
+
+CMakeFiles/final.dir/header.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/final.dir/header.cpp.s"
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "/Users/binhduongnguyen/Downloads/FH Technikum/Semester 5/Funktionale Programmierung Labor/Functional-Programming-Final-Project/header.cpp" -o CMakeFiles/final.dir/header.cpp.s
+
 # Object files for target final
 final_OBJECTS = \
-"CMakeFiles/final.dir/main.cpp.o"
+"CMakeFiles/final.dir/main.cpp.o" \
+"CMakeFiles/final.dir/test.cpp.o" \
+"CMakeFiles/final.dir/header.cpp.o"
 
 # External object files for target final
 final_EXTERNAL_OBJECTS =
 
 final: CMakeFiles/final.dir/main.cpp.o
+final: CMakeFiles/final.dir/test.cpp.o
+final: CMakeFiles/final.dir/header.cpp.o
 final: CMakeFiles/final.dir/build.make
 final: CMakeFiles/final.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir="/Users/binhduongnguyen/Downloads/FH Technikum/Semester 5/Funktionale Programmierung Labor/Functional-Programming-Final-Project/cmake-build-debug/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable final"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir="/Users/binhduongnguyen/Downloads/FH Technikum/Semester 5/Funktionale Programmierung Labor/Functional-Programming-Final-Project/cmake-build-debug/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_4) "Linking CXX executable final"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/final.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

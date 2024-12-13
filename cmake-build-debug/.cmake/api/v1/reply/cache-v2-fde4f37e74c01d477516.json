@@ -1398,6 +1398,18 @@
 			"value" : "/Users/binhduongnguyen/Downloads/FH Technikum/Semester 5/Funktionale Programmierung Labor/Functional-Programming-Final-Project/vcpkg/installed"
 		},
 		{
+			"name" : "doctest_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "The directory containing a CMake configuration file for doctest."
+				}
+			],
+			"type" : "PATH",
+			"value" : "doctest_DIR-NOTFOUND"
+		},
+		{
 			"name" : "final_BINARY_DIR",
 			"properties" : 
 			[

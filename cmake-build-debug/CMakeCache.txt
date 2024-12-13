@@ -274,6 +274,9 @@ Z_VCPKG_CL:FILEPATH=Z_VCPKG_CL-NOTFOUND
 // triplet
 _VCPKG_INSTALLED_DIR:PATH=/Users/binhduongnguyen/Downloads/FH Technikum/Semester 5/Funktionale Programmierung Labor/Functional-Programming-Final-Project/vcpkg/installed
 
+//The directory containing a CMake configuration file for doctest.
+doctest_DIR:PATH=doctest_DIR-NOTFOUND
+
 //Value Computed by CMake
 final_BINARY_DIR:STATIC=/Users/binhduongnguyen/Downloads/FH Technikum/Semester 5/Funktionale Programmierung Labor/Functional-Programming-Final-Project/cmake-build-debug
 

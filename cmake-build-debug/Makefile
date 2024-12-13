@@ -129,6 +129,30 @@ final/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/final.dir/build.make CMakeFiles/final.dir/build
 .PHONY : final/fast
 
+header.o: header.cpp.o
+.PHONY : header.o
+
+# target to build an object file
+header.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/final.dir/build.make CMakeFiles/final.dir/header.cpp.o
+.PHONY : header.cpp.o
+
+header.i: header.cpp.i
+.PHONY : header.i
+
+# target to preprocess a source file
+header.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/final.dir/build.make CMakeFiles/final.dir/header.cpp.i
+.PHONY : header.cpp.i
+
+header.s: header.cpp.s
+.PHONY : header.s
+
+# target to generate assembly for a file
+header.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/final.dir/build.make CMakeFiles/final.dir/header.cpp.s
+.PHONY : header.cpp.s
+
 main.o: main.cpp.o
 .PHONY : main.o
 
@@ -153,6 +177,30 @@ main.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/final.dir/build.make CMakeFiles/final.dir/main.cpp.s
 .PHONY : main.cpp.s
 
+test.o: test.cpp.o
+.PHONY : test.o
+
+# target to build an object file
+test.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/final.dir/build.make CMakeFiles/final.dir/test.cpp.o
+.PHONY : test.cpp.o
+
+test.i: test.cpp.i
+.PHONY : test.i
+
+# target to preprocess a source file
+test.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/final.dir/build.make CMakeFiles/final.dir/test.cpp.i
+.PHONY : test.cpp.i
+
+test.s: test.cpp.s
+.PHONY : test.s
+
+# target to generate assembly for a file
+test.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/final.dir/build.make CMakeFiles/final.dir/test.cpp.s
+.PHONY : test.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -162,9 +210,15 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... final"
+	@echo "... header.o"
+	@echo "... header.i"
+	@echo "... header.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
+	@echo "... test.o"
+	@echo "... test.i"
+	@echo "... test.s"
 .PHONY : help
 
 
