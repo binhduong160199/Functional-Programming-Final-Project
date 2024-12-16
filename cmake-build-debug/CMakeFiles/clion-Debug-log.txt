@@ -1,21 +1,4 @@
 /Users/binhduongnguyen/Applications/CLion.app/Contents/bin/cmake/mac/aarch64/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "Unix Makefiles" -S "/Users/binhduongnguyen/Downloads/FH Technikum/Semester 5/Funktionale Programmierung Labor/Functional-Programming-Final-Project" -B "/Users/binhduongnguyen/Downloads/FH Technikum/Semester 5/Funktionale Programmierung Labor/Functional-Programming-Final-Project/cmake-build-debug"
-CMake Error at vcpkg/scripts/buildsystems/vcpkg.cmake:859 (_find_package):
-  By not providing "Finddoctest.cmake" in CMAKE_MODULE_PATH this project has
-  asked CMake to find a package configuration file provided by "doctest", but
-  CMake did not find one.
-
-  Could not find a package configuration file provided by "doctest" with any
-  of the following names:
-
-    doctestConfig.cmake
-    doctest-config.cmake
-
-  Add the installation prefix of "doctest" to CMAKE_PREFIX_PATH or set
-  "doctest_DIR" to a directory containing one of the above files.  If
-  "doctest" provides a separate development package or SDK, be sure it has
-  been installed.
-Call Stack (most recent call first):
-  CMakeLists.txt:13 (find_package)
-
-
--- Configuring incomplete, errors occurred!
+-- Configuring done (0.0s)
+-- Generating done (0.0s)
+-- Build files have been written to: /Users/binhduongnguyen/Downloads/FH Technikum/Semester 5/Funktionale Programmierung Labor/Functional-Programming-Final-Project/cmake-build-debug
