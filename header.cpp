@@ -58,12 +58,13 @@ std::string trimApostrophes(const std::string& word) {
 }
 
 // Tokenize the text into words
-// Converts the input text to lowercase, removes punctuation, and splits it into words
+// Converts the input text to lowercase, removes punctuation and numbers, and splits it into words
 std::vector<std::string> tokenize(const std::string& text) {
-    // Preprocess the text: Replace non-alphanumeric characters with spaces and convert to lowercase
+    // Preprocess the text: Replace non-alphanumeric characters and numbers with spaces and convert to lowercase
     auto preprocess = [](const std::string& input) {
         return std::accumulate(input.begin(), input.end(), std::string(), [](std::string acc, unsigned char c) {
-            acc.push_back((std::isalnum(c) || c == '\'') ? std::tolower(c) : ' '); // Keep alphanumeric characters and apostrophes
+            // Keep only alphabetic characters and apostrophes
+            acc.push_back((std::isalpha(c) || c == '\'') ? std::tolower(c) : ' ');
             return acc;
         });
     };
@@ -82,7 +83,6 @@ std::vector<std::string> tokenize(const std::string& text) {
             return acc;
         });
     };
-
     return cleanTokens(splitIntoWords(preprocess(text))); // Apply all steps and return the final list of words
 }
 
