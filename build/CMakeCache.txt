@@ -146,7 +146,7 @@ CMAKE_PROJECT_DESCRIPTION:STATIC=
 CMAKE_PROJECT_HOMEPAGE_URL:STATIC=
 
 //Value Computed by CMake
-CMAKE_PROJECT_NAME:STATIC=FunctionalProgrammingFinalProject
+CMAKE_PROJECT_NAME:STATIC=final
 
 //Path to a program.
 CMAKE_RANLIB:FILEPATH=/Library/Developer/CommandLineTools/usr/bin/ranlib
@@ -208,7 +208,7 @@ CMAKE_STRIP:FILEPATH=/Library/Developer/CommandLineTools/usr/bin/strip
 CMAKE_TAPI:FILEPATH=/Library/Developer/CommandLineTools/usr/bin/tapi
 
 //Vcpkg toolchain file
-CMAKE_TOOLCHAIN_FILE:STRING=/Users/binhduongnguyen/Downloads/FH Technikum/Semester 5/Funktionale Programmierung Labor/Functional-Programming-Final-Project/vcpkg/scripts/buildsystems/vcpkg.cmake
+CMAKE_TOOLCHAIN_FILE:STRING=../vcpkg/scripts/buildsystems/vcpkg.cmake
 
 //If this value is on, makefiles will be generated without the
 // .SILENT directive, and all commands will be echoed to the console
@@ -270,6 +270,15 @@ Z_VCPKG_CL:FILEPATH=Z_VCPKG_CL-NOTFOUND
 //The directory which contains the installed libraries for each
 // triplet
 _VCPKG_INSTALLED_DIR:PATH=/Users/binhduongnguyen/Downloads/FH Technikum/Semester 5/Funktionale Programmierung Labor/Functional-Programming-Final-Project/vcpkg/installed
+
+//Value Computed by CMake
+final_BINARY_DIR:STATIC=/Users/binhduongnguyen/Downloads/FH Technikum/Semester 5/Funktionale Programmierung Labor/Functional-Programming-Final-Project/build
+
+//Value Computed by CMake
+final_IS_TOP_LEVEL:STATIC=ON
+
+//Value Computed by CMake
+final_SOURCE_DIR:STATIC=/Users/binhduongnguyen/Downloads/FH Technikum/Semester 5/Funktionale Programmierung Labor/Functional-Programming-Final-Project
 
 //The directory containing a CMake configuration file for range-v3.
 range-v3_DIR:PATH=range-v3_DIR-NOTFOUND

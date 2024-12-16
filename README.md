@@ -28,3 +28,7 @@ This project implements a persistent red-black tree to read a large text file, t
    ```bash
    git clone https://github.com/binhduong160199/Functional-Programming-Final-Project
    cd red-black-tree-project
+2. **Run project:**
+   ```bash
+   ./run.sh
+   type "war_and_peace.txt"		 	
